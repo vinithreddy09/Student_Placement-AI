@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Placement Prediction Result</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card result">
+
+        <h1>📊 Placement Prediction</h1>
+
+        {% if prediction == "Placed" %}
+
+            <h2 style="color: green;">
+                🎉 Placed
+            </h2>
+
+        {% else %}
+
+            <h2 style="color: red;">
+                ⚠️ Not Placed
+            </h2>
+
+        {% endif %}
+
+        <p class="subtitle">
+            AI-based prediction generated from the student's profile.
+        </p>
+
+
+        <!-- Probability -->
+
+        <h3>Placement Probability</h3>
+
+        <div class="probability">
+            {{ probability }}%
+        </div>
+
+        <div style="
+            width:100%;
+            height:25px;
+            background:#e5e7eb;
+            border-radius:15px;
+            overflow:hidden;
+            margin:20px 0;
+        ">
+
+            <div style="
+                width:{{ probability }}%;
+                height:100%;
+                background:#2563eb;
+                border-radius:15px;
+            "></div>
+
+        </div>
+
+
+        <!-- Skill Gap -->
+
+        <div class="recommendations">
+
+            <h2>🎯 Skill Gap Analysis</h2>
+
+            <br>
+
+            {% for skill, score in skill_scores.items() %}
+
+                <p>
+                    <strong>{{ skill }}</strong>
+                    — {{ score }}%
+                </p>
+
+                <div style="
+                    width:100%;
+                    height:15px;
+                    background:#e5e7eb;
+                    border-radius:10px;
+                    overflow:hidden;
+                    margin:5px 0 15px 0;
+                ">
+
+                    <div style="
+                        width:{{ score }}%;
+                        height:100%;
+                        background:#2563eb;
+                        border-radius:10px;
+                    "></div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- Recommendations -->
+
+        <div class="recommendations">
+
+            <h2>💡 Recommended Improvements</h2>
+
+            <ul>
+
+                {% for recommendation in recommendations %}
+
+                    <li>
+                        {{ recommendation }}
+                    </li>
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+
+        <a href="/" class="back">
+            ← Predict Another Student
+        </a>
+
+        <a href="/dashboard" class="back">
+            📊 View Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

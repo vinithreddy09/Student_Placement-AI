@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Student Placement Analytics</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- HEADER -->
+
+    <header class="dashboard-header">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🎓
+            </div>
+
+            <div>
+                <h1>AI STUDENT PLACEMENT & PREDICTION ANALYTICS</h1>
+
+                <p>
+                    Machine Learning Based Student Placement Analysis
+                </p>
+            </div>
+
+        </div>
+
+        <div class="header-buttons">
+
+            <a href="/" class="header-btn">
+                🔮 New Prediction
+            </a>
+
+            <button onclick="location.reload()" class="header-btn refresh-btn">
+                🔄 Refresh
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- KPI CARDS -->
+
+    <section class="kpi-grid">
+
+        <!-- TOTAL -->
+
+        <div class="kpi-card blue">
+
+            <div class="kpi-icon">
+                👥
+            </div>
+
+            <div class="kpi-content">
+
+                <h3>TOTAL PREDICTIONS</h3>
+
+                <div class="kpi-value">
+                    {{ total }}
+                </div>
+
+                <p>Total Records</p>
+
+            </div>
+
+        </div>
+
+
+        <!-- PLACED -->
+
+        <div class="kpi-card green">
+
+            <div class="kpi-icon">
+                ✓
+            </div>
+
+            <div class="kpi-content">
+
+                <h3>PLACED STUDENTS</h3>
+
+                <div class="kpi-value">
+                    {{ placed }}
+                </div>
+
+                <p>
+                    {% if total > 0 %}
+                        {{ "%.1f"|format((placed / total) * 100) }}% of Total
+                    {% else %}
+                        0% of Total
+                    {% endif %}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- NOT PLACED -->
+
+        <div class="kpi-card red">
+
+            <div class="kpi-icon">
+                ✕
+            </div>
+
+            <div class="kpi-content">
+
+                <h3>NOT PLACED STUDENTS</h3>
+
+                <div class="kpi-value">
+                    {{ not_placed }}
+                </div>
+
+                <p>
+                    {% if total > 0 %}
+                        {{ "%.1f"|format((not_placed / total) * 100) }}% of Total
+                    {% else %}
+                        0% of Total
+                    {% endif %}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- PROBABILITY -->
+
+        <div class="kpi-card purple">
+
+            <div class="kpi-icon">
+                📈
+            </div>
+
+            <div class="kpi-content">
+
+                <h3>AVERAGE PROBABILITY</h3>
+
+                <div class="kpi-value">
+                    {{ average_probability }}%
+                </div>
+
+                <p>
+                    Average Placement Probability
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN CHART GRID -->
+
+    <section class="chart-grid">
+
+
+        <!-- PLACEMENT DISTRIBUTION -->
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <h2>PLACEMENT DISTRIBUTION</h2>
+
+                <span>Prediction Overview</span>
+
+            </div>
+
+            <div class="chart-wrapper donut-wrapper">
+
+                <canvas id="placementChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- CGPA CHART -->
+
+        <div class="chart-card wide">
+
+            <div class="chart-header">
+
+                <h2>CGPA VS PLACEMENT PREDICTION</h2>
+
+                <span>Student Performance Analysis</span>
+
+            </div>
+
+            <div class="chart-wrapper">
+
+                <canvas id="cgpaChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- CODING SCORE -->
+
+        <div class="chart-card wide">
+
+            <div class="chart-header">
+
+                <h2>CODING SCORE VS PLACEMENT</h2>
+
+                <span>Technical Performance Analysis</span>
+
+            </div>
+
+            <div class="chart-wrapper">
+
+                <canvas id="codingChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- PROBABILITY -->
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <h2>PROBABILITY DISTRIBUTION</h2>
+
+                <span>Prediction Confidence</span>
+
+            </div>
+
+            <div class="chart-wrapper">
+
+                <canvas id="probabilityChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PREDICTION HISTORY -->
+
+    <section class="history-card">
+
+        <div class="history-header">
+
+            <div>
+
+                <h2>📋 PREDICTION HISTORY</h2>
+
+                <p>
+                    Recent AI placement predictions
+                </p>
+
+            </div>
+
+            <div class="record-count">
+
+                {{ total }} Records
+
+            </div>
+
+        </div>
+
+
+        {% if records %}
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>AGE</th>
+                    <th>GENDER</th>
+                    <th>CGPA</th>
+                    <th>PREDICTION</th>
+                    <th>PROBABILITY</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for record in records %}
+
+                <tr>
+
+                    <td>
+                        #{{ record[0] }}
+                    </td>
+
+                    <td>
+                        {{ record[1] }}
+                    </td>
+
+                    <td>
+                        {{ record[2] }}
+                    </td>
+
+                    <td>
+                        <strong>{{ record[3] }}</strong>
+                    </td>
+
+                    <td>
+
+                        {% if record[4] == "Placed" %}
+
+                            <span class="status placed">
+                                ✓ Placed
+                            </span>
+
+                        {% else %}
+
+                            <span class="status not-placed">
+                                ✕ Not Placed
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <div class="table-probability">
+
+                            <div class="mini-progress">
+
+                                <div class="mini-progress-fill"
+                                     style="width: {{ record[5] }}%;">
+                                </div>
+
+                            </div>
+
+                            <span>
+                                {{ record[5] }}%
+                            </span>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <div>
+                📊
+            </div>
+
+            <h3>No predictions yet</h3>
+
+            <p>
+                Make your first student prediction to see analytics here.
+            </p>
+
+            <a href="/">
+                Make Prediction
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <footer class="dashboard-footer">
+
+        <div>
+            🗄️
+            <strong>Data Source:</strong>
+            student_placement.db
+        </div>
+
+        <div>
+            🤖
+            <strong>Model:</strong>
+            Logistic Regression
+        </div>
+
+        <div>
+            🎯
+            <strong>AI Placement Prediction System</strong>
+        </div>
+
+    </footer>
+
+</div>
+
+
+<!-- CHART JAVASCRIPT -->
+
+<script>
+
+    /* ===============================
+       PLACEMENT DONUT
+    =============================== */
+
+    const placementCanvas =
+        document.getElementById("placementChart");
+
+    new Chart(placementCanvas, {
+
+        type: "doughnut",
+
+        data: {
+
+            labels: [
+                "Placed",
+                "Not Placed"
+            ],
+
+            datasets: [{
+
+                data: [
+                    {{ placed }},
+                    {{ not_placed }}
+                ],
+
+                backgroundColor: [
+                    "#22c55e",
+                    "#ef4444"
+                ],
+
+                borderWidth: 0
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            cutout: "65%",
+
+            plugins: {
+
+                legend: {
+
+                    position: "bottom",
+
+                    labels: {
+
+                        padding: 20,
+
+                        font: {
+                            size: 14
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+
+    /* ===============================
+       CGPA CHART
+    =============================== */
+
+    const cgpaCanvas =
+        document.getElementById("cgpaChart");
+
+
+    new Chart(cgpaCanvas, {
+
+        type: "bar",
+
+        data: {
+
+            labels: [
+                "5-6",
+                "6-7",
+                "7-8",
+                "8-9",
+                "9-10"
+            ],
+
+            datasets: [
+
+                {
+
+                    label: "Placed",
+
+                    data: [
+                        {% for record in records %}
+                            {% if record[3] >= 5 and record[3] < 6 and record[4] == "Placed" %}1,{% else %}0,{% endif %}
+                        {% endfor %}
+                    ]
+
+                },
+
+                {
+
+                    label: "Not Placed",
+
+                    data: [
+                        {% for record in records %}
+                            {% if record[3] >= 5 and record[3] < 6 and record[4] == "Not Placed" %}1,{% else %}0,{% endif %}
+                        {% endfor %}
+                    ]
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+                        precision: 0
+                    }
+
+                }
+
+            },
+
+            plugins: {
+
+                legend: {
+                    position: "bottom"
+                }
+
+            }
+
+        }
+
+    });
+
+
+    /* ===============================
+       CODING SCORE CHART
+    =============================== */
+
+    const codingCanvas =
+        document.getElementById("codingChart");
+
+
+    new Chart(codingCanvas, {
+
+        type: "bar",
+
+        data: {
+
+            labels: [
+                "0-20",
+                "20-40",
+                "40-60",
+                "60-80",
+                "80-100"
+            ],
+
+            datasets: [
+
+                {
+
+                    label: "Placed",
+
+                    data: [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+
+                },
+
+                {
+
+                    label: "Not Placed",
+
+                    data: [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+                        precision: 0
+                    }
+
+                }
+
+            },
+
+            plugins: {
+
+                legend: {
+                    position: "bottom"
+                }
+
+            }
+
+        }
+
+    });
+
+
+    /* ===============================
+       PROBABILITY DISTRIBUTION
+    =============================== */
+
+    const probabilityCanvas =
+        document.getElementById("probabilityChart");
+
+
+    new Chart(probabilityCanvas, {
+
+        type: "bar",
+
+        data: {
+
+            labels: [
+                "0-20%",
+                "20-40%",
+                "40-60%",
+                "60-80%",
+                "80-100%"
+            ],
+
+            datasets: [{
+
+                label: "Students",
+
+                data: [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+                        precision: 0
+                    }
+
+                }
+
+            },
+
+            plugins: {
+
+                legend: {
+                    display: false
+                }
+
+            }
+
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>
