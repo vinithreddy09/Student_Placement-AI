@@ -1,0 +1,38 @@
+
+MODEL TUNING STARTED
+============================================================
+
+Training: Logistic Regression
+Best Parameters:
+{'model__C': 0.01}
+Accuracy : 68.00%
+Precision: 69.57%
+Recall   : 64.00%
+F1 Score : 66.67%
+
+Training: Random Forest
+Best Parameters:
+{'model__max_depth': None, 'model__min_samples_split': 2, 'model__n_estimators': 100}
+Accuracy : 64.00%
+Precision: 67.50%
+Recall   : 54.00%
+F1 Score : 60.00%
+
+Training: Gradient Boosting
+Best Parameters:
+{'model__learning_rate': 0.01, 'model__max_depth': 2, 'model__n_estimators': 50}
+Accuracy : 61.00%
+Precision: 60.00%
+Recall   : 66.00%
+F1 Score : 62.86%
+
+============================================================
+BEST MODEL
+============================================================
+Model     : Logistic Regression
+F1 Score  : 66.67%
+
+Best model saved to:
+models/placement_model.pkl
+
+MODEL TUNING COMPLETED!
